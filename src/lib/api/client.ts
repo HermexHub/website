@@ -1,10 +1,8 @@
 import {
-  ConfirmPaymentResponse,
   CreateOrderRequest,
   CreateOrderResponse,
   GetProductsResponse,
   OrderDetails,
-  PaymentScenario,
   Product,
   ValidateCartResponse
 } from './types'
@@ -95,19 +93,6 @@ export async function fetchOrderDetails(orderId: string): Promise<OrderDetails> 
   return request<OrderDetails>(`/orders/${orderId}`)
 }
 
-export async function confirmPaymentApi(
-  orderId: string,
-  scenario: PaymentScenario = 'SUCCESS',
-  cardNumber?: string
-): Promise<ConfirmPaymentResponse> {
-  return request<ConfirmPaymentResponse>(`/payments/${orderId}/confirm`, {
-    method: 'POST',
-    body: JSON.stringify({
-      scenario,
-      cardNumber
-    })
-  })
-}
 
 export function getOrderSseUrl(orderId: string): string {
   return `${API_BASE}/orders/${orderId}/live`

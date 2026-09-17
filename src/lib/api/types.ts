@@ -93,19 +93,3 @@ export interface OrderDetails {
   createdAt: string
   updatedAt: string
 }
-
-export type PaymentScenario =
-  | 'SUCCESS'
-  | 'INSUFFICIENT_FUNDS'
-  | 'CARD_EXPIRED'
-  | 'DECLINED_BY_BANK'
-  | 'GATEWAY_TIMEOUT'
-
-export interface ConfirmPaymentResponse {
-  orderId: string
-  paymentId: string
-  status: 'SUCCEEDED' | 'FAILED' | string
-  amount: number
-  currency: string
-  failureReason?: string
-}

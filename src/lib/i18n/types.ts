@@ -84,26 +84,6 @@ export interface TranslationDictionary {
     placingOrder: string
     idempotencyNotice: string
   }
-  payment: {
-    title: string
-    subtitle: string
-    orderId: string
-    amountDue: string
-    cardNumberLabel: string
-    cardHolderLabel: string
-    expiryLabel: string
-    cvvLabel: string
-    payButton: string
-    processing: string
-    testScenariosTitle: string
-    testScenariosSubtitle: string
-    scenarioSuccess: string
-    scenarioInsufficientFunds: string
-    scenarioCardExpired: string
-    scenarioBankDeclined: string
-    scenarioTimeout: string
-    safeSimulationBadge: string
-  }
   tracker: {
     title: string
     subtitle: string

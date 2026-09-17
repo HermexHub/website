@@ -40,11 +40,7 @@ export function CheckoutForm() {
       clearCart()
 
       const paymentPortalUrl = process.env.NEXT_PUBLIC_PAYMENT_PORTAL_URL
-      if (paymentPortalUrl) {
-        window.location.href = `${paymentPortalUrl}/pay/${order.orderId}`
-      } else {
-        router.push(`/payment/${order.orderId}`)
-      }
+      window.location.href = `${paymentPortalUrl}/pay/${order.orderId}`
     } catch (err) {
       setError((err as Error).message || 'Failed to initialize order')
       setIsSubmitting(false)

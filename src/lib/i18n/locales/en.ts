@@ -84,26 +84,6 @@ export const enDictionary: TranslationDictionary = {
     placingOrder: 'Initiating Saga Transaction...',
     idempotencyNotice: 'Secured with server-authoritative pricing and idempotency double-click protection.'
   },
-  payment: {
-    title: 'Hermex Hosted Checkout',
-    subtitle: 'Isolated PCI-DSS simulated payment gateway with interactive Saga test triggers',
-    orderId: 'Order ID',
-    amountDue: 'Amount Due',
-    cardNumberLabel: 'Card Number',
-    cardHolderLabel: 'Cardholder Name',
-    expiryLabel: 'Expiration Date (MM/YY)',
-    cvvLabel: 'CVV / CVC',
-    payButton: 'Confirm & Authorize Payment',
-    processing: 'Contacting Card Issuer...',
-    testScenariosTitle: '🧪 Saga Simulation Test Controls',
-    testScenariosSubtitle: 'Click any chip below to populate test card credentials and trigger compensation or success:',
-    scenarioSuccess: 'Success (Happy Path)',
-    scenarioInsufficientFunds: 'Insufficient Funds',
-    scenarioCardExpired: 'Card Expired',
-    scenarioBankDeclined: 'Bank Declined',
-    scenarioTimeout: 'Gateway Timeout',
-    safeSimulationBadge: 'Sandbox Environment — No real credit card charged'
-  },
   tracker: {
     title: 'Live Order Saga Tracker',
     subtitle: 'Real-time choreography event stream delivered via Server-Sent Events (SSE)',

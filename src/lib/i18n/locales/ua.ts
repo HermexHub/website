@@ -84,26 +84,6 @@ export const uaDictionary: TranslationDictionary = {
     placingOrder: 'Ініціалізація транзакції Saga...',
     idempotencyNotice: 'Захищено серверними цінами та захистом від подвійного натискання (Idempotency).'
   },
-  payment: {
-    title: 'Hermex Hosted Checkout',
-    subtitle: 'Ізольований симульований платіжний шлюз стандарту PCI-DSS з тестуванням сценаріїв Saga',
-    orderId: 'Номер замовлення',
-    amountDue: 'Сума до сплати',
-    cardNumberLabel: 'Номер платіжної картки',
-    cardHolderLabel: 'Власник картки (Cardholder)',
-    expiryLabel: 'Термін дії (ММ/РР)',
-    cvvLabel: 'Код безпеки (CVV)',
-    payButton: 'Підтвердити та авторизувати платіж',
-    processing: 'Обробка запиту банком-еквайєром...',
-    testScenariosTitle: '🧪 Панель тестування сценаріїв Saga',
-    testScenariosSubtitle: 'Оберіть потрібний сценарій для автозаповнення тестової картки та перевірки саги:',
-    scenarioSuccess: 'Успішна оплата (Happy Path)',
-    scenarioInsufficientFunds: 'Недостатньо коштів на рахунку',
-    scenarioCardExpired: 'Термін дії картки закінчився',
-    scenarioBankDeclined: 'Відхилено банком-емітентом',
-    scenarioTimeout: 'Таймаут шлюзу еквайрингу',
-    safeSimulationBadge: 'Тестове середовище Sandbox — списання реальних коштів не відбувається'
-  },
   tracker: {
     title: 'Live Трекер замовлення Saga',
     subtitle: 'Сквозний потік подій хореографії в реальному часі через Server-Sent Events (SSE)',
