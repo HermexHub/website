@@ -12,11 +12,15 @@ import {
   RotateCcw,
   Radio,
   ArrowLeft,
-  ShieldCheck
+  ShieldCheck,
+  Lock,
+  Zap
 } from 'lucide-react'
 import { getOrderSseUrl } from '@/lib/api/client'
 import { OrderDetails } from '@/lib/api/types'
 import { useTranslation } from '@/lib/i18n/i18n-context'
+import { useUserStore } from '@/lib/store/use-user-store'
+import { formatPrice } from '@/lib/utils/format'
 
 interface LiveOrderTrackerProps {
   orderId: string
@@ -35,7 +39,9 @@ export function LiveOrderTracker({
   orderId,
   initialOrder
 }: LiveOrderTrackerProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
+  const { accessToken, user, quickLogin, setAuthModalOpen } = useUserStore()
+
   const [order, setOrder] = useState<OrderDetails | null>(initialOrder || null)
   const [currentStatus, setCurrentStatus] = useState<string>(
     initialOrder?.status || 'PENDING'
@@ -44,9 +50,18 @@ export function LiveOrderTracker({
   const [eventsLog, setEventsLog] = useState<StreamEventMessage[]>([])
 
   useEffect(() => {
+    if (initialOrder) {
+      setOrder(initialOrder)
+      if (initialOrder.status) {
+        setCurrentStatus(initialOrder.status)
+      }
+    }
+  }, [initialOrder])
+
+  useEffect(() => {
     if (!orderId) return
 
-    const sseUrl = getOrderSseUrl(orderId)
+    const sseUrl = getOrderSseUrl(orderId, accessToken)
     const eventSource = new EventSource(sseUrl)
 
     eventSource.onopen = () => {
@@ -76,7 +91,7 @@ export function LiveOrderTracker({
     return () => {
       eventSource.close()
     }
-  }, [orderId])
+  }, [orderId, accessToken])
 
   const isConfirmed = currentStatus === 'CONFIRMED'
   const isCancelled = currentStatus === 'CANCELLED'
@@ -129,6 +144,36 @@ export function LiveOrderTracker({
             )}
           </div>
         </div>
+
+        {/* Not connected & guest notice */}
+        {!isConnected && !user && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900">
+            <div className="flex items-center gap-2">
+              <Lock className="h-4 w-4 text-amber-600 shrink-0" />
+              <span>
+                {locale === 'ua'
+                  ? 'Для захищеного перегляду статусу замовлення авторизуйтесь у своєму кабінеті.'
+                  : 'Please sign in to view your live order tracking stream securely.'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => quickLogin()}
+                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-xs cursor-pointer"
+              >
+                ⚡ {locale === 'ua' ? 'Швидкий вхід' : 'Quick Sign In'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-white hover:bg-amber-100 text-amber-900 font-bold border border-amber-200 transition-all cursor-pointer"
+              >
+                {locale === 'ua' ? 'Увійти' : 'Sign In'}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Timeline Stepper */}
         <div className="pt-8 pb-4">
@@ -269,17 +314,17 @@ export function LiveOrderTracker({
                   <span className="font-bold text-slate-900 block">{item.productId}</span>
                   <span className="text-slate-500">Qty: {item.quantity}</span>
                 </div>
-                <span className="font-mono font-bold text-slate-900">
-                  ${(item.price * item.quantity).toFixed(2)}
+                <span className="font-sans font-bold text-slate-900">
+                  {formatPrice(item.price * item.quantity)}
                 </span>
               </div>
             ))}
           </div>
 
           <div className="border-t border-slate-100 pt-4 flex justify-between items-center text-sm font-bold text-slate-900">
-            <span>Total Paid</span>
-            <span className="font-mono text-xl text-blue-600 font-black">
-              ${Number(order.totalAmount || 0).toFixed(2)}
+            <span>Разом сплачено</span>
+            <span className="font-sans text-xl text-blue-600 font-black">
+              {formatPrice(order.totalAmount || 0)}
             </span>
           </div>
 

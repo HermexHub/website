@@ -19,6 +19,9 @@ export interface TranslationDictionary {
     searchPlaceholder: string
     help: string
     supportPhone: string
+    supportChat: string
+    storeLocation: string
+    myOrders: string
   }
   catalog: {
     title: string

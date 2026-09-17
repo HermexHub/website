@@ -4,7 +4,7 @@ export const enDictionary: TranslationDictionary = {
   common: {
     brandName: 'Hermex',
     tagline: 'Premium Consumer Electronics & Express Delivery',
-    currency: '$',
+    currency: 'грн',
     loading: 'Loading...',
     error: 'Something went wrong',
     retry: 'Try again',
@@ -18,7 +18,10 @@ export const enDictionary: TranslationDictionary = {
     language: 'Language',
     searchPlaceholder: 'Search products by name, model or category...',
     help: 'Need help?',
-    supportPhone: '+1 (800) 555-0199'
+    supportPhone: '+380 (800) 500-199',
+    supportChat: 'Chat with Us',
+    storeLocation: 'Kyiv / Store Pickup',
+    myOrders: 'My Orders'
   },
   catalog: {
     title: 'Next-Gen Electronics & Tech',
@@ -58,7 +61,7 @@ export const enDictionary: TranslationDictionary = {
     quantity: 'Quantity',
     backToCatalog: '← Back to Products',
     officialWarranty: '2-Year Official Manufacturer Warranty',
-    freeShippingNotice: 'Free standard shipping on orders over $150',
+    freeShippingNotice: 'Free standard shipping on orders over 2 000 грн',
     hassleFreeReturn: '30-Day Money-Back Guarantee'
   },
   cart: {
@@ -67,7 +70,7 @@ export const enDictionary: TranslationDictionary = {
     emptyPrompt: 'Explore our curated tech collection and find your next favorite device.',
     startShopping: 'Explore Catalog',
     subtotal: 'Subtotal',
-    freeDeliveryProgress: 'Add ${{amount}} more for FREE Express Delivery',
+    freeDeliveryProgress: 'Add {{amount}} more for FREE Express Delivery',
     freeDeliveryAchieved: '🎉 You unlocked FREE Express Delivery!',
     checkout: 'Proceed to Checkout',
     clear: 'Clear Cart',
@@ -82,11 +85,11 @@ export const enDictionary: TranslationDictionary = {
     title: 'Checkout & Shipping',
     subtitle: 'Provide your delivery destination and confirm your order details.',
     addressLabel: 'Shipping Address',
-    addressPlaceholder: 'e.g. 742 Evergreen Terrace, Springfield, OR 97477',
+    addressPlaceholder: 'Street address, apartment, city, postal code',
     fullNameLabel: 'Recipient Full Name',
-    fullNamePlaceholder: 'Alex Mercer',
+    fullNamePlaceholder: 'Enter full name',
     emailLabel: 'Email Address for Order Updates',
-    emailPlaceholder: 'alex.mercer@example.com',
+    emailPlaceholder: 'name@example.com',
     orderSummary: 'Order Summary',
     itemsCount: 'items',
     delivery: 'Shipping & Handling',

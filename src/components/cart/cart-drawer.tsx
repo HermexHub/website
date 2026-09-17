@@ -7,6 +7,8 @@ import { useTranslation } from '@/lib/i18n/i18n-context'
 import { useCartStore } from '@/lib/store/use-cart-store'
 import { CartValidationAlert } from './cart-validation-alert'
 
+import { formatPrice } from '@/lib/utils/format'
+
 export function CartDrawer() {
   const { t } = useTranslation()
   const {
@@ -15,14 +17,15 @@ export function CartDrawer() {
     setOpen,
     removeItem,
     updateQuantity,
-    clearCart,
     getSubtotal,
+    getTotalCount,
+    clearCart,
     validationReport,
     applyAdjustments
   } = useCartStore()
 
   const subtotal = getSubtotal()
-  const freeShippingThreshold = 150
+  const freeShippingThreshold = 2000
   const freeShippingProgress = Math.min(100, (subtotal / freeShippingThreshold) * 100)
   const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal)
 
@@ -74,8 +77,8 @@ export function CartDrawer() {
             {remainingForFreeShipping > 0 ? (
               <p className="text-blue-900 font-medium">
                 {t.cart.freeDeliveryProgress.replace(
-                  '${{amount}}',
-                  remainingForFreeShipping.toFixed(2)
+                  '{{amount}}',
+                  formatPrice(remainingForFreeShipping)
                 )}
               </p>
             ) : (
@@ -181,8 +184,8 @@ export function CartDrawer() {
                           </button>
                         </div>
 
-                        <span className="text-sm font-black text-slate-900 font-mono">
-                          ${(item.price * item.quantity).toFixed(2)}
+                        <span className="text-sm font-black text-slate-900 font-sans">
+                          {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
                     </div>
@@ -192,7 +195,7 @@ export function CartDrawer() {
                 {items.length > 0 && (
                   <button
                     onClick={clearCart}
-                    className="text-xs font-medium text-slate-500 hover:text-rose-600 transition-colors pt-2"
+                    className="text-xs font-medium text-slate-500 hover:text-rose-600 transition-colors pt-2 cursor-pointer"
                   >
                     {t.cart.clear}
                   </button>
@@ -206,8 +209,8 @@ export function CartDrawer() {
             <div className="border-t border-slate-200 bg-slate-50 p-6 space-y-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-600 font-medium">{t.cart.subtotal}</span>
-                <span className="text-xl font-black text-slate-900 font-mono">
-                  ${subtotal.toFixed(2)}
+                <span className="text-xl font-black text-slate-900 font-sans">
+                  {formatPrice(subtotal)}
                 </span>
               </div>
 

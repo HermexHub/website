@@ -8,24 +8,30 @@ import { LiveOrderTracker } from '@/components/orders/live-order-tracker'
 import { fetchOrderDetails } from '@/lib/api/client'
 import { OrderDetails } from '@/lib/api/types'
 import { useTranslation } from '@/lib/i18n/i18n-context'
+import { useUserStore } from '@/lib/store/use-user-store'
 
 export default function OrderTrackingPage() {
   const { t } = useTranslation()
   const params = useParams()
   const orderId = params?.id as string
+  const { accessToken, restoreSession } = useUserStore()
 
   const [initialOrder, setInitialOrder] = useState<OrderDetails | null>(null)
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    restoreSession()
+  }, [restoreSession])
 
   useEffect(() => {
     if (!orderId) return
 
     async function loadOrder() {
       try {
-        const data = await fetchOrderDetails(orderId)
+        const data = await fetchOrderDetails(orderId, accessToken)
         setInitialOrder(data)
       } catch (err) {
-        // If order not fetched via REST, SSE will still connect and stream updates
+        // SSE will stream initial snapshot as well
         console.warn('Initial order fetch note:', err)
       } finally {
         setLoading(false)
@@ -33,7 +39,7 @@ export default function OrderTrackingPage() {
     }
 
     loadOrder()
-  }, [orderId])
+  }, [orderId, accessToken])
 
   if (!orderId) {
     return (

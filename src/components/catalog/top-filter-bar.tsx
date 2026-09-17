@@ -21,7 +21,7 @@ export function TopFilterBar({
   totalCount,
   onToggleMobileFilter
 }: TopFilterBarProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const [localSearch, setLocalSearch] = useState(search)
 
   useEffect(() => {
@@ -93,6 +93,8 @@ export function TopFilterBar({
             <option value="price_ASC">{t.catalog.sortPriceAsc}</option>
             <option value="price_DESC">{t.catalog.sortPriceDesc}</option>
             <option value="name_ASC">{t.catalog.sortName}</option>
+            <option value="brand_ASC">{locale === 'ua' ? 'За брендом (Apple, Asus...)' : 'By Brand (Apple, Asus...)'}</option>
+            <option value="stockQuantity_DESC">{locale === 'ua' ? 'За наявністю' : 'In Stock First'}</option>
           </select>
         </div>
       </div>

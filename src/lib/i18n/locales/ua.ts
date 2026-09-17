@@ -4,7 +4,7 @@ export const uaDictionary: TranslationDictionary = {
   common: {
     brandName: 'Hermex',
     tagline: 'Офіційний магазин преміум-електроніки та швидка доставка',
-    currency: '$',
+    currency: 'грн',
     loading: 'Завантаження...',
     error: 'Щось пішло не так',
     retry: 'Спробувати знову',
@@ -18,7 +18,10 @@ export const uaDictionary: TranslationDictionary = {
     language: 'Мова',
     searchPlaceholder: 'Пошук товарів за назвою, брендом або категорією...',
     help: 'Потрібна допомога?',
-    supportPhone: '+380 (800) 500-199'
+    supportPhone: '+380 (800) 500-199',
+    supportChat: 'Онлайн-чат',
+    storeLocation: 'Київ / Самовивіз',
+    myOrders: 'Мої замовлення'
   },
   catalog: {
     title: 'Флагманська техніка та гаджети',
@@ -58,7 +61,7 @@ export const uaDictionary: TranslationDictionary = {
     quantity: 'Кількість',
     backToCatalog: '← Назад до каталогу',
     officialWarranty: 'Офіційна гарантія виробника 24 місяці',
-    freeShippingNotice: 'Безкоштовна доставка для замовлень від $150',
+    freeShippingNotice: 'Безкоштовна доставка для замовлень від 2 000 грн',
     hassleFreeReturn: '30 днів на легке повернення коштів'
   },
   cart: {
@@ -67,7 +70,7 @@ export const uaDictionary: TranslationDictionary = {
     emptyPrompt: 'Ознайомтеся з нашим асортиментом техніки та оберіть потрібні пристрої.',
     startShopping: 'Перейти до каталогу',
     subtotal: 'Сума замовлення',
-    freeDeliveryProgress: 'Додайте товарів ще на ${{amount}} для БЕЗКОШТОВНОЇ експрес-доставки',
+    freeDeliveryProgress: 'Додайте товарів ще на {{amount}} для БЕЗКОШТОВНОЇ експрес-доставки',
     freeDeliveryAchieved: '🎉 Вітаємо! Вам надано БЕЗКОШТОВНУ експрес-доставку!',
     checkout: 'Оформити замовлення',
     clear: 'Очистити кошик',
@@ -82,11 +85,11 @@ export const uaDictionary: TranslationDictionary = {
     title: 'Оформлення замовлення',
     subtitle: 'Вкажіть адресу доставки та контактні дані отримувача.',
     addressLabel: 'Адреса доставки замовлення',
-    addressPlaceholder: 'м. Київ, вул. Хрещатик, буд. 22, кв. 45',
+    addressPlaceholder: 'Введіть місто, вулицю та номер будинку/квартири',
     fullNameLabel: 'ПІБ Отримувача',
-    fullNamePlaceholder: 'Олександр Коваленко',
+    fullNamePlaceholder: 'Введіть прізвище та імʼя',
     emailLabel: 'Електронна пошта для підтвердження',
-    emailPlaceholder: 'alex.kovalenko@example.com',
+    emailPlaceholder: 'name@example.com',
     orderSummary: 'Разом до сплати',
     itemsCount: 'товарів',
     delivery: 'Вартість доставки',

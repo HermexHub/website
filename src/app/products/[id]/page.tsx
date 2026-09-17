@@ -11,20 +11,26 @@ import {
   Truck,
   RotateCcw,
   Star,
-  AlertCircle
+  AlertCircle,
+  Heart,
+  Scale
 } from 'lucide-react'
 import { fetchProductById } from '@/lib/api/client'
 import { Product } from '@/lib/api/types'
 import { useTranslation } from '@/lib/i18n/i18n-context'
 import { useCartStore } from '@/lib/store/use-cart-store'
+import { useUserStore } from '@/lib/store/use-user-store'
+import { formatPrice, formatInstallment } from '@/lib/utils/format'
+import { getProductSpecs } from '@/lib/utils/specs'
 
 export default function ProductDetailPage() {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const params = useParams()
   const router = useRouter()
   const productId = params?.id as string
 
   const { addItem } = useCartStore()
+  const { isInWishlist, toggleWishlist, isInCompare, toggleCompare } = useUserStore()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [quantity, setQuantity] = useState(1)
@@ -148,9 +154,13 @@ export default function ProductDetailPage() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="text-3xl font-black font-mono text-slate-900 tracking-tight">
-              ${Number(product.price).toFixed(2)}
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="text-3xl font-black font-sans text-slate-900 tracking-tight">
+              {formatPrice(product.price)}
+            </span>
+
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200/80">
+              💳 {formatInstallment(product.price, 12)}
             </span>
 
             {isOutOfStock ? (
@@ -163,8 +173,8 @@ export default function ProductDetailPage() {
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span>{t.catalog.inStock} ({product.stockQuantity} available)</span>
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{t.catalog.inStock}</span>
               </span>
             )}
           </div>
@@ -204,29 +214,63 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            <button
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-bold transition-all shadow-sm ${
-                isOutOfStock
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                  : added
-                  ? 'bg-emerald-600 text-white shadow-emerald-600/30 scale-[1.02]'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 active:scale-[0.99] cursor-pointer'
-              }`}
-            >
-              {added ? (
-                <>
-                  <Check className="h-5 w-5" />
-                  <span>{t.catalog.addedToCart}</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="h-5 w-5" />
-                  <span>{t.catalog.addToCart}</span>
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-4 text-sm font-bold transition-all shadow-sm ${
+                  isOutOfStock
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                    : added
+                    ? 'bg-emerald-600 text-white shadow-emerald-600/30 scale-[1.02]'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 active:scale-[0.99] cursor-pointer'
+                }`}
+              >
+                {added ? (
+                  <>
+                    <Check className="h-5 w-5" />
+                    <span>{t.catalog.addedToCart}</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-5 w-5" />
+                    <span>{t.catalog.addToCart}</span>
+                  </>
+                )}
+              </button>
+
+              {/* Compare Button */}
+              <button
+                type="button"
+                onClick={() => toggleCompare(product.id)}
+                title={isInCompare(product.id) ? (locale === 'ua' ? 'Видалити з порівняння' : 'Remove from compare') : (locale === 'ua' ? 'Додати до порівняння' : 'Add to compare')}
+                className={`flex h-13 w-13 items-center justify-center rounded-2xl border transition-all cursor-pointer ${
+                  isInCompare(product.id)
+                    ? 'bg-blue-50 border-blue-200 text-blue-600 shadow-xs'
+                    : 'bg-slate-50 hover:bg-blue-50 text-slate-400 hover:text-blue-600 border-slate-200'
+                }`}
+              >
+                <Scale className="h-5 w-5" />
+              </button>
+
+              {/* Wishlist Button */}
+              <button
+                type="button"
+                onClick={() => toggleWishlist(product.id)}
+                title={isInWishlist(product.id) ? (locale === 'ua' ? 'Видалити з бажаного' : 'Remove from wishlist') : (locale === 'ua' ? 'Додати до бажаного' : 'Add to wishlist')}
+                className={`flex h-13 w-13 items-center justify-center rounded-2xl border transition-all cursor-pointer ${
+                  isInWishlist(product.id)
+                    ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-xs'
+                    : 'bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 border-slate-200'
+                }`}
+              >
+                <Heart
+                  className={`h-5 w-5 transition-all ${
+                    isInWishlist(product.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-400'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Value Props & Guarantees */}
@@ -248,6 +292,38 @@ export default function ProductDetailPage() {
               <span>Original Certified Tech</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Detailed Technical Specifications Table */}
+      <div className="pt-10 border-t border-slate-200 space-y-6">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            {locale === 'ua' ? 'Технічні характеристики' : 'Technical Specifications'}
+          </h2>
+          <p className="text-xs text-slate-500 mt-1">
+            {locale === 'ua'
+              ? 'Повні апаратні параметри та особливості пристрою від офіційного виробника.'
+              : 'Full hardware specifications and parameters from the official manufacturer.'}
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200/90 bg-white overflow-hidden shadow-xs divide-y divide-slate-100">
+          {getProductSpecs(product, locale as 'ua' | 'en').map((spec, index) => (
+            <div
+              key={spec.key}
+              className={`grid grid-cols-1 sm:grid-cols-3 p-4 text-xs transition-colors ${
+                index % 2 === 0 ? 'bg-slate-50/50' : 'bg-white'
+              }`}
+            >
+              <span className="font-bold text-slate-500 mb-1 sm:mb-0">
+                {spec.label}
+              </span>
+              <span className="sm:col-span-2 font-medium text-slate-900">
+                {spec.value}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
