@@ -15,15 +15,23 @@ export interface TranslationDictionary {
     catalog: string
     cart: string
     orders: string
-    admin: string
     language: string
     searchPlaceholder: string
+    help: string
+    supportPhone: string
   }
   catalog: {
     title: string
     subtitle: string
-    inStockOnly: string
+    categories: string
     allCategories: string
+    priceRange: string
+    minPrice: string
+    maxPrice: string
+    applyPrice: string
+    clearFilters: string
+    inStockOnly: string
+    fastDelivery: string
     searchPlaceholder: string
     sortBy: string
     sortNewest: string
@@ -41,6 +49,7 @@ export interface TranslationDictionary {
     of: string
     previous: string
     next: string
+    reviewsCount: string
   }
   product: {
     sku: string
@@ -48,6 +57,9 @@ export interface TranslationDictionary {
     stockAvailable: string
     quantity: string
     backToCatalog: string
+    officialWarranty: string
+    freeShippingNotice: string
+    hassleFreeReturn: string
   }
   cart: {
     title: string
@@ -82,7 +94,7 @@ export interface TranslationDictionary {
     total: string
     placeOrder: string
     placingOrder: string
-    idempotencyNotice: string
+    securityNotice: string
   }
   tracker: {
     title: string
@@ -96,9 +108,33 @@ export interface TranslationDictionary {
     stepStockReserved: string
     stepPayment: string
     stepConfirmed: string
-    sagaFailedNotice: string
+    orderCancelledNotice: string
     orderSummary: string
     liveConnected: string
     deliveryAddress: string
+  }
+  footer: {
+    brandDesc: string
+    trustShippingTitle: string
+    trustShippingDesc: string
+    trustWarrantyTitle: string
+    trustWarrantyDesc: string
+    trustReturnsTitle: string
+    trustReturnsDesc: string
+    trustSupportTitle: string
+    trustSupportDesc: string
+    shopSection: string
+    supportSection: string
+    companySection: string
+    legalSection: string
+    shippingInfo: string
+    orderTracking: string
+    returns: string
+    faq: string
+    aboutUs: string
+    contact: string
+    privacyPolicy: string
+    termsOfService: string
+    paymentMethods: string
   }
 }

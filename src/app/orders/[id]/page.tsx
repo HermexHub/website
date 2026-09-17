@@ -49,7 +49,7 @@ export default function OrderTrackingPage() {
       <div className="flex items-center justify-between">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>{t.nav.catalog}</span>
@@ -58,8 +58,8 @@ export default function OrderTrackingPage() {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
-          <p className="text-xs text-slate-400">Connecting to order stream...</p>
+          <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+          <p className="text-xs text-slate-500 font-medium">Connecting to order stream...</p>
         </div>
       ) : (
         <LiveOrderTracker orderId={orderId} initialOrder={initialOrder} />

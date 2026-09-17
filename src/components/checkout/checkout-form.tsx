@@ -49,12 +49,12 @@ export function CheckoutForm() {
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-slate-800 bg-slate-900/40">
-        <ShoppingBag className="h-12 w-12 text-slate-500 mb-3" />
-        <h3 className="text-lg font-semibold text-white mb-2">{t.cart.empty}</h3>
+      <div className="flex flex-col items-center justify-center p-16 text-center rounded-3xl border border-slate-200 bg-white shadow-xs">
+        <ShoppingBag className="h-12 w-12 text-slate-400 mb-3" />
+        <h3 className="text-lg font-bold text-slate-900 mb-2">{t.cart.empty}</h3>
         <button
           onClick={() => router.push('/')}
-          className="rounded-xl bg-blue-600 hover:bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-all shadow-md shadow-blue-600/20"
+          className="rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-xs font-bold text-white transition-all shadow-sm"
         >
           {t.cart.startShopping}
         </button>
@@ -67,19 +67,19 @@ export function CheckoutForm() {
       {/* Left Column: Form */}
       <form
         onSubmit={handleSubmit}
-        className="lg:col-span-7 space-y-6 rounded-2xl border border-slate-800 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-md"
+        className="lg:col-span-7 space-y-6 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs"
       >
         <div>
-          <h2 className="text-xl font-bold text-white tracking-tight">
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
             {t.checkout.title}
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             {t.checkout.subtitle}
           </p>
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 text-xs">
+          <div className="flex items-center gap-2 p-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -87,7 +87,7 @@ export function CheckoutForm() {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
               {t.checkout.fullNameLabel}
             </label>
             <input
@@ -96,12 +96,12 @@ export function CheckoutForm() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder={t.checkout.fullNamePlaceholder}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950/80 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
               {t.checkout.emailLabel}
             </label>
             <input
@@ -110,12 +110,12 @@ export function CheckoutForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t.checkout.emailPlaceholder}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950/80 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
               {t.checkout.addressLabel}
             </label>
             <textarea
@@ -124,7 +124,7 @@ export function CheckoutForm() {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder={t.checkout.addressPlaceholder}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950/80 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
           </div>
         </div>
@@ -132,7 +132,7 @@ export function CheckoutForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 py-3.5 text-sm font-semibold text-white shadow-xl shadow-blue-600/20 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 py-4 text-sm font-bold text-white shadow-sm hover:shadow-md active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
           {isSubmitting ? (
             <>
@@ -147,52 +147,52 @@ export function CheckoutForm() {
           )}
         </button>
 
-        <p className="text-[11px] text-slate-500 text-center leading-relaxed">
-          {t.checkout.idempotencyNotice}
+        <p className="text-[11px] text-slate-400 text-center leading-relaxed">
+          {t.checkout.securityNotice}
         </p>
       </form>
 
       {/* Right Column: Order Summary */}
-      <div className="lg:col-span-5 rounded-2xl border border-slate-800 bg-slate-900/40 p-6 sm:p-8 backdrop-blur-md space-y-6">
-        <h3 className="text-base font-bold text-white tracking-tight flex items-center justify-between">
+      <div className="lg:col-span-5 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+        <h3 className="text-base font-bold text-slate-900 tracking-tight flex items-center justify-between">
           <span>{t.checkout.orderSummary}</span>
-          <span className="text-xs font-mono text-slate-400">
+          <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
             {items.length} {t.checkout.itemsCount}
           </span>
         </h3>
 
-        <div className="divide-y divide-slate-800/80 max-h-72 overflow-y-auto pr-1">
+        <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto pr-1">
           {items.map((item) => (
-            <div key={item.productId} className="py-3 flex items-center justify-between gap-3 text-xs">
+            <div key={item.productId} className="py-3.5 flex items-center justify-between gap-3 text-xs">
               <div className="min-w-0 flex-1">
-                <div className="font-semibold text-white truncate">{item.name}</div>
-                <div className="text-slate-400">Qty: {item.quantity} × ${Number(item.price).toFixed(2)}</div>
+                <div className="font-bold text-slate-900 truncate">{item.name}</div>
+                <div className="text-slate-500 font-medium">Qty: {item.quantity} × ${Number(item.price).toFixed(2)}</div>
               </div>
-              <div className="font-bold text-white shrink-0">
+              <div className="font-mono font-bold text-slate-900 shrink-0">
                 ${(item.price * item.quantity).toFixed(2)}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="border-t border-slate-800 pt-4 space-y-2 text-xs">
-          <div className="flex justify-between text-slate-400">
+        <div className="border-t border-slate-100 pt-4 space-y-2 text-xs">
+          <div className="flex justify-between text-slate-600 font-medium">
             <span>{t.cart.subtotal}</span>
-            <span className="text-white font-medium">${subtotal.toFixed(2)}</span>
+            <span className="text-slate-900 font-bold font-mono">${subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-slate-400">
+          <div className="flex justify-between text-slate-600 font-medium">
             <span>{t.checkout.delivery}</span>
-            <span className="text-emerald-400 font-semibold">{t.checkout.free}</span>
+            <span className="text-emerald-600 font-bold">{t.checkout.free}</span>
           </div>
-          <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-slate-800/80">
+          <div className="flex justify-between text-base font-bold text-slate-900 pt-3 border-t border-slate-100">
             <span>{t.checkout.total}</span>
-            <span className="text-lg text-blue-400 font-mono">${subtotal.toFixed(2)}</span>
+            <span className="text-xl text-blue-600 font-black font-mono">${subtotal.toFixed(2)}</span>
           </div>
         </div>
 
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3.5 flex items-center gap-2.5 text-xs text-emerald-300">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" />
-          <span>Server-authoritative pricing strictly verified against database.</span>
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 flex items-center gap-3 text-xs text-emerald-800 font-medium">
+          <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-600" />
+          <span>Official 2-Year Warranty & Certified Storefront Guaranteed.</span>
         </div>
       </div>
     </div>

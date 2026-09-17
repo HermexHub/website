@@ -6,9 +6,9 @@ import { CartDrawer } from '@/components/cart/cart-drawer'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Hermex • E-Commerce & Delivery Hub',
+  title: 'Hermex • Premium Electronics & Tech Store',
   description:
-    'Ultra-fast distributed e-commerce hub powered by Saga Event Choreography, PostgreSQL, and RabbitMQ.'
+    'Discover flagship tech gadgets, laptops, audio gear and accessories with express delivery and official warranty.'
 }
 
 export default function RootLayout({
@@ -17,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+    <html lang="en">
+      <body className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased selection:bg-blue-600 selection:text-white">
         <I18nProvider>
           <Navbar />
           <CartDrawer />
