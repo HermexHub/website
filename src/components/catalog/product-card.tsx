@@ -35,6 +35,10 @@ export function ProductCard({ product }: ProductCardProps) {
   const priceNum = Number(product.price) || 0
   const monoMonthly = Math.round(priceNum / 12)
   const privatMonthly = Math.round(priceNum / 10)
+  const hasDiscount = product.oldPrice && Number(product.oldPrice) > priceNum
+  const discountPercent = hasDiscount
+    ? Math.round(((Number(product.oldPrice) - priceNum) / Number(product.oldPrice)) * 100)
+    : 0
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -60,16 +64,26 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className="group relative flex flex-col h-full rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs hover:shadow-xl hover:border-blue-200 transition-all duration-300">
-      {/* 1. Top action row: Low stock badge & Compare / Wishlist buttons (Fixed h-7) */}
-      <div className="flex items-center justify-between z-10 h-7 mb-2">
-        <div>
+      {/* 1. Top action row: Low stock / Badge / Brand & Compare / Wishlist buttons */}
+      <div className="flex items-center justify-between z-10 h-7 mb-2 gap-2">
+        <div className="flex items-center gap-1.5 overflow-hidden">
+          {product.badge ? (
+            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-rose-500 to-amber-500 text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-2xs shrink-0">
+              {product.badge}
+            </span>
+          ) : product.brand ? (
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 border border-slate-200 shrink-0">
+              {product.brand}
+            </span>
+          ) : null}
+
           {isOutOfStock ? (
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-500 border border-slate-200">
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 border border-slate-200 shrink-0">
               {t.catalog.outOfStock}
             </span>
           ) : isLowStock ? (
-            <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 border border-amber-200">
-              {locale === 'ua' ? `Залишилося ${product.stockQuantity} шт.` : `Only ${product.stockQuantity} left`}
+            <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-200 shrink-0">
+              {locale === 'ua' ? `${product.stockQuantity} шт.` : `${product.stockQuantity} left`}
             </span>
           ) : null}
         </div>
@@ -139,6 +153,17 @@ export function ProductCard({ product }: ProductCardProps) {
             {locale === 'ua' ? 'Немає фото' : 'No Image'}
           </div>
         )}
+
+        {/* Color swatch pill on image */}
+        {product.colorHex && (
+          <div className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-lg bg-white/90 backdrop-blur-xs px-2 py-0.5 text-[10px] font-medium text-slate-700 border border-slate-200/80 shadow-2xs">
+            <span
+              className="h-2.5 w-2.5 rounded-full border border-slate-300 shrink-0"
+              style={{ backgroundColor: product.colorHex }}
+            />
+            <span className="truncate max-w-[80px]">{product.color}</span>
+          </div>
+        )}
       </Link>
 
       {/* 3. SKU & Star Rating (Fixed h-5) */}
@@ -148,8 +173,12 @@ export function ProductCard({ product }: ProductCardProps) {
         </span>
         <div className="flex items-center gap-1 text-amber-500 text-xs">
           <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-          <span className="font-bold text-slate-700 text-[11px]">4.9</span>
-          <span className="text-slate-400 text-[10px]">(48)</span>
+          <span className="font-bold text-slate-700 text-[11px]">
+            {product.rating ? Number(product.rating).toFixed(1) : '4.9'}
+          </span>
+          <span className="text-slate-400 text-[10px]">
+            ({product.reviewsCount ?? 24})
+          </span>
         </div>
       </div>
 
@@ -210,10 +239,17 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* 6. Price & Action Row (mt-auto locks this to the exact same baseline across all cards) */}
       <div className="mt-auto pt-4 flex items-center justify-between gap-2 border-t border-slate-100">
         <div className="flex flex-col">
-          <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-            {locale === 'ua' ? 'Ціна' : 'Price'}
-          </span>
-          <span className="text-xl font-semibold tracking-wide text-slate-900 font-sans">
+          {hasDiscount && (
+            <div className="flex items-center gap-1.5 leading-none mb-0.5">
+              <span className="text-xs text-slate-400 line-through font-medium font-sans">
+                {formatPrice(product.oldPrice!)}
+              </span>
+              <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1 py-0.2 rounded">
+                -{discountPercent}%
+              </span>
+            </div>
+          )}
+          <span className="text-xl font-bold tracking-tight text-slate-900 font-sans">
             {formatPrice(product.price)}
           </span>
         </div>

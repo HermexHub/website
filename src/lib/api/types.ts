@@ -3,10 +3,25 @@ export interface Product {
   name: string
   sku: string
   price: number
+  oldPrice?: number
   stockQuantity: number
+  maxOrderQuantity?: number
   description?: string
+  descriptionJson?: string
   category?: string
   imageUrl?: string
+  images?: string[]
+  brand?: string
+  model?: string
+  color?: string
+  colorHex?: string
+  specs?: Record<string, string>
+  specsJson?: string
+  rating?: number
+  reviewsCount?: number
+  warrantyMonths?: number
+  weightGrams?: number
+  badge?: string
   createdAt?: string
   updatedAt?: string
 }

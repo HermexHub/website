@@ -21,7 +21,7 @@ import { useTranslation } from '@/lib/i18n/i18n-context'
 import { useCartStore } from '@/lib/store/use-cart-store'
 import { useUserStore } from '@/lib/store/use-user-store'
 import { formatPrice, formatInstallment } from '@/lib/utils/format'
-import { getProductSpecs } from '@/lib/utils/specs'
+import { getProductSpecs, getProductDescription } from '@/lib/utils/specs'
 
 export default function ProductDetailPage() {
   const { t, locale } = useTranslation()
@@ -34,6 +34,7 @@ export default function ProductDetailPage() {
 
   const [product, setProduct] = useState<Product | null>(null)
   const [quantity, setQuantity] = useState(1)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [added, setAdded] = useState(false)
@@ -100,6 +101,14 @@ export default function ProductDetailPage() {
 
   const isOutOfStock = product.stockQuantity <= 0
   const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5
+  const currentImage = selectedImage || product.imageUrl || ''
+  const hasDiscount = product.oldPrice && Number(product.oldPrice) > Number(product.price)
+  const discountPercent = hasDiscount
+    ? Math.round(((Number(product.oldPrice) - Number(product.price)) / Number(product.oldPrice)) * 100)
+    : 0
+  const ratingValue = product.rating ? Number(product.rating).toFixed(1) : '4.9'
+  const reviewsCountValue = product.reviewsCount ?? 48
+  const productDescription = getProductDescription(product, locale as 'ua' | 'en')
 
   return (
     <div className="max-w-5xl mx-auto py-6 space-y-8">
@@ -113,26 +122,69 @@ export default function ProductDetailPage() {
       </Link>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 items-start">
-        {/* Product Image Card */}
-        <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-slate-200/90 bg-white p-8 shadow-xs flex items-center justify-center">
-          {product.imageUrl ? (
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="h-full w-full object-contain object-center"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-slate-400 text-xs font-semibold">
-              No Image Preview
-            </div>
-          )}
+        {/* Product Image Gallery & Main View */}
+        <div className="space-y-4">
+          <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-slate-200/90 bg-white p-8 shadow-xs flex items-center justify-center">
+            {currentImage ? (
+              <img
+                src={currentImage}
+                alt={product.name}
+                className="h-full w-full object-contain object-center transition-all duration-300"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-slate-400 text-xs font-semibold">
+                No Image Preview
+              </div>
+            )}
 
-          {/* Floating Category */}
-          {product.category && (
-            <div className="absolute top-4 left-4">
-              <span className="rounded-xl bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 border border-slate-200">
-                {product.category}
-              </span>
+            {/* Floating Category & Brand */}
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 flex-wrap">
+              {product.category && (
+                <span className="rounded-xl bg-slate-100/90 backdrop-blur-xs px-3 py-1 text-xs font-bold text-slate-700 border border-slate-200">
+                  {product.category}
+                </span>
+              )}
+              {product.brand && (
+                <span className="rounded-xl bg-blue-50/90 backdrop-blur-xs px-3 py-1 text-xs font-bold text-blue-700 border border-blue-200">
+                  {product.brand}
+                </span>
+              )}
+            </div>
+
+            {/* Floating Badge */}
+            {product.badge && (
+              <div className="absolute top-4 right-4">
+                <span className="rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-white px-3 py-1 text-xs font-black tracking-wider uppercase shadow-xs">
+                  {product.badge}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnail Strip */}
+          {product.images && product.images.length > 1 && (
+            <div className="flex items-center gap-3 overflow-x-auto pb-2">
+              {product.images.map((img, idx) => {
+                const isActive = (selectedImage === img) || (!selectedImage && img === product.imageUrl)
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSelectedImage(img)}
+                    className={`relative h-20 w-20 shrink-0 rounded-2xl overflow-hidden border-2 transition-all p-2 bg-white cursor-pointer ${
+                      isActive
+                        ? 'border-blue-600 ring-2 ring-blue-600/20 shadow-xs'
+                        : 'border-slate-200 hover:border-slate-300 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt={`${product.name} - ${idx + 1}`}
+                      className="h-full w-full object-contain"
+                    />
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>
@@ -144,20 +196,53 @@ export default function ProductDetailPage() {
               <span>SKU: {product.sku}</span>
               <div className="flex items-center gap-1 text-amber-500 font-sans">
                 <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                <span className="font-bold text-slate-800">4.9</span>
-                <span className="text-slate-400 text-xs">(48 reviews)</span>
+                <span className="font-bold text-slate-800">{ratingValue}</span>
+                <span className="text-slate-400 text-xs">({reviewsCountValue} reviews)</span>
               </div>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
               {product.name}
             </h1>
+
+            {/* Color & Model details */}
+            {(product.color || product.model) && (
+              <div className="flex items-center gap-3 mt-2 text-xs text-slate-600">
+                {product.model && (
+                  <span className="bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-md">
+                    Model: {product.model}
+                  </span>
+                )}
+                {product.color && (
+                  <div className="flex items-center gap-1.5 font-medium">
+                    {product.colorHex && (
+                      <span
+                        className="h-3.5 w-3.5 rounded-full border border-slate-300 shadow-2xs inline-block"
+                        style={{ backgroundColor: product.colorHex }}
+                      />
+                    )}
+                    <span>{product.color}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-baseline gap-3">
             <span className="text-3xl font-black font-sans text-slate-900 tracking-tight">
               {formatPrice(product.price)}
             </span>
+
+            {hasDiscount && (
+              <>
+                <span className="text-lg text-slate-400 line-through font-medium font-sans">
+                  {formatPrice(product.oldPrice!)}
+                </span>
+                <span className="rounded-lg bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 text-xs font-bold">
+                  -{discountPercent}%
+                </span>
+              </>
+            )}
 
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200/80">
               💳 {formatInstallment(product.price, 12)}
@@ -179,9 +264,9 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {product.description && (
-            <div className="rounded-2xl border border-slate-200/90 bg-white p-5 text-sm text-slate-600 leading-relaxed shadow-2xs">
-              {product.description}
+          {productDescription && (
+            <div className="rounded-2xl border border-slate-200/90 bg-white p-5 text-sm text-slate-600 leading-relaxed shadow-2xs whitespace-pre-line">
+              {productDescription}
             </div>
           )}
 
@@ -204,13 +289,25 @@ export default function ProductDetailPage() {
                   </span>
                   <button
                     onClick={() =>
-                      setQuantity((q) => Math.min(product.stockQuantity, q + 1))
+                      setQuantity((q) =>
+                        Math.min(
+                          product.maxOrderQuantity
+                            ? Math.min(product.stockQuantity, product.maxOrderQuantity)
+                            : product.stockQuantity,
+                          q + 1
+                        )
+                      )
                     }
                     className="px-3.5 py-2 text-slate-600 hover:text-slate-900 font-bold"
                   >
                     +
                   </button>
                 </div>
+                {product.maxOrderQuantity && (
+                  <span className="text-[11px] text-slate-400">
+                    (Max: {product.maxOrderQuantity})
+                  </span>
+                )}
               </div>
             )}
 
@@ -277,19 +374,29 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-2 gap-3 pt-4 text-xs text-slate-600 font-medium">
             <div className="flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
               <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-              <span>Official 2-Year Warranty</span>
+              <span>
+                {locale === 'ua'
+                  ? `Офіційна гарантія ${product.warrantyMonths || 24} міс.`
+                  : `Official ${product.warrantyMonths || 24}-Month Warranty`}
+              </span>
             </div>
             <div className="flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
               <Truck className="h-4 w-4 text-blue-600 shrink-0" />
-              <span>1-2 Day Express Delivery</span>
+              <span>
+                {locale === 'ua' ? 'Експрес-доставка 1-2 дні' : '1-2 Day Express Delivery'}
+              </span>
             </div>
             <div className="flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
               <RotateCcw className="h-4 w-4 text-amber-600 shrink-0" />
-              <span>30-Day Hassle-Free Return</span>
+              <span>
+                {locale === 'ua' ? 'Легке повернення 30 днів' : '30-Day Hassle-Free Return'}
+              </span>
             </div>
             <div className="flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
               <ShieldCheck className="h-4 w-4 text-purple-600 shrink-0" />
-              <span>Original Certified Tech</span>
+              <span>
+                {locale === 'ua' ? '100% Оригінальна техніка' : 'Original Certified Tech'}
+              </span>
             </div>
           </div>
         </div>

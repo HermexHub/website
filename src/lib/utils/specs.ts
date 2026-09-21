@@ -6,16 +6,88 @@ export interface ProductSpec {
   value: string
 }
 
+export const SPEC_LABELS: Record<string, { ua: string; en: string }> = {
+  screen: { ua: 'Дисплей / Екран', en: 'Display / Screen' },
+  cpu: { ua: 'Процесор', en: 'Processor / CPU' },
+  ram: { ua: 'Оперативна памʼять', en: 'RAM' },
+  storage: { ua: 'Вбудована памʼять (SSD)', en: 'Storage (SSD)' },
+  gpu: { ua: 'Відеокарта', en: 'Graphics / GPU' },
+  camera: { ua: 'Камера', en: 'Camera' },
+  battery: { ua: 'Акумулятор', en: 'Battery' },
+  batteryLife: { ua: 'Автономність', en: 'Battery Life' },
+  charging: { ua: 'Зарядка', en: 'Charging' },
+  material: { ua: 'Матеріал корпусу', en: 'Chassis Material' },
+  protection: { ua: 'Клас захисту', en: 'Protection Rating' },
+  waterproof: { ua: 'Водостійкість', en: 'Waterproof' },
+  ports: { ua: 'Розʼєми та порти', en: 'Ports & Connectivity' },
+  bluetooth: { ua: 'Bluetooth / Звʼязок', en: 'Bluetooth / Wireless' },
+  anc: { ua: 'Шумозаглушення', en: 'Noise Cancelling' },
+  layout: { ua: 'Розкладка', en: 'Keyboard Layout' },
+  switch: { ua: 'Перемикачі (Світчі)', en: 'Switches' },
+  connectivity: { ua: 'Підключення', en: 'Connectivity' },
+  sensor: { ua: 'Оптичний сенсор', en: 'Sensor' },
+  capacity: { ua: 'Ємність батареї', en: 'Capacity' },
+  maxPower: { ua: 'Максимальна потужність', en: 'Max Power Output' },
+  weight: { ua: 'Вага', en: 'Weight' },
+  os: { ua: 'Операційна система', en: 'Operating System' }
+}
+
 /**
- * Returns structured specifications for any product based on SKU, category, and model.
+ * Returns localized product description from i18n JSON object or fallback string.
+ */
+export function getProductDescription(product: Product, locale: 'ua' | 'en' = 'ua'): string {
+  if (product.descriptionJson) {
+    try {
+      const parsed = JSON.parse(product.descriptionJson)
+      if (parsed[locale]) return parsed[locale]
+      if (parsed.ua) return parsed.ua
+      if (parsed.en) return parsed.en
+    } catch {
+      // ignore JSON parse error
+    }
+  }
+  if (typeof product.description === 'object' && product.description !== null) {
+    const desc = product.description as Record<string, string>
+    return desc[locale] || desc.ua || desc.en || ''
+  }
+  return product.description || ''
+}
+
+/**
+ * Returns structured specifications for any product from DB specs JSON or fallback rules.
  */
 export function getProductSpecs(product: Product, locale: 'ua' | 'en' = 'ua'): ProductSpec[] {
   const isUa = locale === 'ua'
+
+  // 1. Primary: Use structured specs from database if available
+  let dbSpecs: Record<string, string> | null = null
+  if (product.specs && typeof product.specs === 'object' && Object.keys(product.specs).length > 0) {
+    dbSpecs = product.specs
+  } else if (product.specsJson && product.specsJson.trim().length > 2) {
+    try {
+      dbSpecs = JSON.parse(product.specsJson)
+    } catch {
+      // ignore
+    }
+  }
+
+  if (dbSpecs && Object.keys(dbSpecs).length > 0) {
+    return Object.entries(dbSpecs).map(([key, value]) => {
+      const labelObj = SPEC_LABELS[key]
+      const label = labelObj ? (isUa ? labelObj.ua : labelObj.en) : key.charAt(0).toUpperCase() + key.slice(1)
+      return {
+        key,
+        label,
+        value: String(value)
+      }
+    })
+  }
+
   const id = product.id.toLowerCase()
   const name = product.name.toLowerCase()
   const cat = (product.category || '').toLowerCase()
 
-  // 1. SMARTPHONES
+  // Fallback heuristic specs if DB has no specs:
   if (cat.includes('smart') || id.startsWith('smart-')) {
     if (name.includes('iphone 15 pro max')) {
       return [
