@@ -311,61 +311,71 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleAddToCart}
-                disabled={isOutOfStock}
-                className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-4 text-sm font-bold transition-all shadow-sm ${
-                  isOutOfStock
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                    : added
-                    ? 'bg-emerald-600 text-white shadow-emerald-600/30 scale-[1.02]'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 active:scale-[0.99] cursor-pointer'
-                }`}
-              >
-                {added ? (
-                  <>
-                    <Check className="h-5 w-5" />
-                    <span>{t.catalog.addedToCart}</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="h-5 w-5" />
-                    <span>{t.catalog.addToCart}</span>
-                  </>
-                )}
-              </button>
+            {/* Primary Action: Add to Cart */}
+            <button
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className={`w-full flex items-center justify-center gap-2.5 rounded-2xl py-4 text-base font-bold transition-all shadow-sm ${
+                isOutOfStock
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                  : added
+                  ? 'bg-emerald-600 text-white shadow-emerald-600/30 scale-[1.01]'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/25 active:scale-[0.99] cursor-pointer'
+              }`}
+            >
+              {added ? (
+                <>
+                  <Check className="h-5 w-5" />
+                  <span>{t.catalog.addedToCart}</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-5 w-5" />
+                  <span>{t.catalog.addToCart}</span>
+                </>
+              )}
+            </button>
 
+            {/* Secondary Actions: Compare & Wishlist */}
+            <div className="grid grid-cols-2 gap-3 pt-1">
               {/* Compare Button */}
               <button
                 type="button"
                 onClick={() => toggleCompare(product.id)}
-                title={isInCompare(product.id) ? (locale === 'ua' ? 'Видалити з порівняння' : 'Remove from compare') : (locale === 'ua' ? 'Додати до порівняння' : 'Add to compare')}
-                className={`flex h-13 w-13 items-center justify-center rounded-2xl border transition-all cursor-pointer ${
+                className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 border text-xs font-semibold transition-all cursor-pointer ${
                   isInCompare(product.id)
-                    ? 'bg-blue-50 border-blue-200 text-blue-600 shadow-xs'
-                    : 'bg-slate-50 hover:bg-blue-50 text-slate-400 hover:text-blue-600 border-slate-200'
+                    ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-2xs'
+                    : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-blue-600 border-slate-200'
                 }`}
               >
-                <Scale className="h-5 w-5" />
+                <Scale className={`h-4 w-4 shrink-0 ${isInCompare(product.id) ? 'text-blue-600' : 'text-slate-400'}`} />
+                <span>
+                  {isInCompare(product.id)
+                    ? (locale === 'ua' ? 'У порівнянні' : 'In comparison')
+                    : (locale === 'ua' ? 'До порівняння' : 'Compare')}
+                </span>
               </button>
 
               {/* Wishlist Button */}
               <button
                 type="button"
                 onClick={() => toggleWishlist(product.id)}
-                title={isInWishlist(product.id) ? (locale === 'ua' ? 'Видалити з бажаного' : 'Remove from wishlist') : (locale === 'ua' ? 'Додати до бажаного' : 'Add to wishlist')}
-                className={`flex h-13 w-13 items-center justify-center rounded-2xl border transition-all cursor-pointer ${
+                className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 border text-xs font-semibold transition-all cursor-pointer ${
                   isInWishlist(product.id)
-                    ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-xs'
-                    : 'bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 border-slate-200'
+                    ? 'bg-rose-50 border-rose-200 text-rose-700 shadow-2xs'
+                    : 'bg-white hover:bg-slate-50 text-slate-600 hover:text-rose-600 border-slate-200'
                 }`}
               >
                 <Heart
-                  className={`h-5 w-5 transition-all ${
+                  className={`h-4 w-4 shrink-0 transition-colors ${
                     isInWishlist(product.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-400'
                   }`}
                 />
+                <span>
+                  {isInWishlist(product.id)
+                    ? (locale === 'ua' ? 'В обраному' : 'In wishlist')
+                    : (locale === 'ua' ? 'В обране' : 'Wishlist')}
+                </span>
               </button>
             </div>
           </div>

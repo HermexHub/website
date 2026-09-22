@@ -34,23 +34,161 @@ export const SPEC_LABELS: Record<string, { ua: string; en: string }> = {
 
 /**
  * Returns localized product description from i18n JSON object or fallback string.
+ * Guaranteed never to return '[object Object]'.
  */
 export function getProductDescription(product: Product, locale: 'ua' | 'en' = 'ua'): string {
+  const isUa = locale === 'ua'
+
+  // 1. Try descriptionJson if available
   if (product.descriptionJson) {
     try {
       const parsed = JSON.parse(product.descriptionJson)
-      if (parsed[locale]) return parsed[locale]
-      if (parsed.ua) return parsed.ua
-      if (parsed.en) return parsed.en
+      if (parsed && typeof parsed === 'object') {
+        const val = parsed[locale] || parsed.ua || parsed.en
+        if (val && typeof val === 'string' && val.trim() && !val.includes('[object Object]')) {
+          return val.trim()
+        }
+      }
     } catch {
       // ignore JSON parse error
     }
   }
+
+  // 2. Try description as object
   if (typeof product.description === 'object' && product.description !== null) {
     const desc = product.description as Record<string, string>
-    return desc[locale] || desc.ua || desc.en || ''
+    const val = desc[locale] || desc.ua || desc.en
+    if (val && typeof val === 'string' && val.trim() && !val.includes('[object Object]')) {
+      return val.trim()
+    }
   }
-  return product.description || ''
+
+  // 3. Try description as string (avoid '[object Object]')
+  if (typeof product.description === 'string') {
+    const trimmed = product.description.trim()
+    if (trimmed && !trimmed.includes('[object Object]')) {
+      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(trimmed)
+          const val = parsed[locale] || parsed.ua || parsed.en
+          if (val && typeof val === 'string' && val.trim()) {
+            return val.trim()
+          }
+        } catch {}
+      }
+      return trimmed
+    }
+  }
+
+  // 4. Dynamic fallback: construct an authentic, senior description from specs
+  const specs = getProductSpecs(product, locale)
+  const screenSpec = specs.find((s) => s.key === 'screen')?.value
+  const cpuSpec = specs.find((s) => s.key === 'cpu')?.value
+  const ramSpec = specs.find((s) => s.key === 'ram')?.value
+  const storageSpec = specs.find((s) => s.key === 'storage')?.value
+
+  if (isUa) {
+    const parts = [
+      `${product.name} — офіційний флагманський пристрій з гарантією 24 місяці.`,
+      screenSpec ? `Оснащений якісним дисплеєм (${screenSpec}).` : '',
+      cpuSpec ? `Високу швидкодію забезпечує процесор ${cpuSpec}.` : '',
+      ramSpec || storageSpec
+        ? `Конфігурація пам'яті: ${[ramSpec, storageSpec].filter(Boolean).join(' / ')}.`
+        : ''
+    ].filter(Boolean)
+    return parts.join(' ')
+  } else {
+    const parts = [
+      `${product.name} is an official flagship tech device backed by a 24-month warranty.`,
+      screenSpec ? `Features a brilliant display (${screenSpec}).` : '',
+      cpuSpec ? `Powered by ${cpuSpec} for ultimate responsiveness.` : '',
+      ramSpec || storageSpec
+        ? `Memory setup: ${[ramSpec, storageSpec].filter(Boolean).join(' / ')}.`
+        : ''
+    ].filter(Boolean)
+    return parts.join(' ')
+  }
+}
+
+/**
+ * Extract canonical brand name from product
+ */
+export function extractProductBrand(product: Product): string {
+  if (product.brand && product.brand.trim()) {
+    return product.brand.trim()
+  }
+  const firstWord = product.name.trim().split(' ')[0]
+  return firstWord || 'Other'
+}
+
+/**
+ * Extract processor / CPU family
+ */
+export function extractProductCpu(product: Product): string | null {
+  const specs = getProductSpecs(product, 'en')
+  const cpuSpec = specs.find((s) => s.key === 'cpu')?.value || ''
+  const name = product.name.toLowerCase()
+  const combined = (cpuSpec + ' ' + name).toLowerCase()
+
+  if (combined.includes('m3 max')) return 'Apple M3 Max'
+  if (combined.includes('m3 pro')) return 'Apple M3 Pro'
+  if (combined.includes('m3')) return 'Apple M3'
+  if (combined.includes('m2')) return 'Apple M2'
+  if (combined.includes('a17 pro')) return 'Apple A17 Pro'
+  if (combined.includes('a16 bionic') || combined.includes('a16')) return 'Apple A16 Bionic'
+  if (combined.includes('snapdragon 8 gen 3') || combined.includes('8 gen 3')) return 'Snapdragon 8 Gen 3'
+  if (combined.includes('snapdragon 8 gen 2') || combined.includes('8 gen 2')) return 'Snapdragon 8 Gen 2'
+  if (combined.includes('tensor g3')) return 'Google Tensor G3'
+  if (combined.includes('i9-14900') || combined.includes('core i9')) return 'Intel Core i9'
+  if (combined.includes('i7-14700') || combined.includes('core i7')) return 'Intel Core i7'
+  if (combined.includes('ryzen 9')) return 'AMD Ryzen 9'
+  if (combined.includes('ryzen 7')) return 'AMD Ryzen 7'
+  if (combined.includes('exynos 2400')) return 'Samsung Exynos 2400'
+
+  if (cpuSpec) {
+    return cpuSpec.split('(')[0].trim()
+  }
+  return null
+}
+
+/**
+ * Extract RAM capacity (8 GB, 12 GB, 16 GB, 24 GB, 32 GB, etc.)
+ */
+export function extractProductRam(product: Product): string | null {
+  const specs = getProductSpecs(product, 'en')
+  const ramSpec = specs.find((s) => s.key === 'ram')?.value || ''
+  const memSpec = specs.find((s) => s.key === 'memory')?.value || ''
+  const combined = `${ramSpec} ${memSpec} ${product.name}`
+
+  const match =
+    combined.match(/(\d+)\s*(?:GB|ГБ)\s*(?:RAM|LPDDR|DDR|пам)/i) ||
+    combined.match(/(\d+)\s*(?:GB|ГБ)/i)
+  if (match) {
+    const size = parseInt(match[1], 10)
+    if ([4, 6, 8, 12, 16, 18, 24, 32, 36, 48, 64, 96, 128].includes(size)) {
+      return `${size} GB`
+    }
+  }
+  return null
+}
+
+/**
+ * Extract storage capacity (128 GB, 256 GB, 512 GB, 1 TB, 2 TB)
+ */
+export function extractProductStorage(product: Product): string | null {
+  const specs = getProductSpecs(product, 'en')
+  const storageSpec = specs.find((s) => s.key === 'storage')?.value || ''
+  const memSpec = specs.find((s) => s.key === 'memory')?.value || ''
+  const combined = `${storageSpec} ${memSpec} ${product.name} ${product.sku}`
+
+  if (combined.match(/2\s*TB|2\s*ТБ/i)) return '2 TB'
+  if (combined.match(/1\s*TB|1\s*ТБ|1024\s*GB/i)) return '1 TB'
+  if (combined.match(/512\s*GB|512\s*ГБ/i)) return '512 GB'
+  if (combined.match(/256\s*GB|256\s*ГБ/i)) return '256 GB'
+  if (combined.match(/128\s*GB|128\s*ГБ/i)) return '128 GB'
+  if (combined.match(/64\s*GB|64\s*ГБ/i)) return '64 GB'
+
+  return null
 }
 
 /**

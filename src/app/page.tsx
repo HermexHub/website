@@ -20,10 +20,16 @@ import { fetchProducts } from '@/lib/api/client'
 import { Product, PaginationMeta } from '@/lib/api/types'
 import { useTranslation } from '@/lib/i18n/i18n-context'
 import { ProductCard } from '@/components/catalog/product-card'
-import { SidebarFilters } from '@/components/catalog/sidebar-filters'
+import { SidebarFilters, AppliedFilters } from '@/components/catalog/sidebar-filters'
 import { TopFilterBar } from '@/components/catalog/top-filter-bar'
 import { Pagination } from '@/components/catalog/pagination'
 import { formatPrice } from '@/lib/utils/format'
+import {
+  extractProductBrand,
+  extractProductCpu,
+  extractProductRam,
+  extractProductStorage
+} from '@/lib/utils/specs'
 
 export default function HomePage() {
   const { t, locale } = useTranslation()
@@ -47,9 +53,49 @@ export default function HomePage() {
   const [maxPrice, setMaxPrice] = useState('')
   const [sortKey, setSortKey] = useState('createdAt_DESC')
 
+  // Facet filter states
+  const [rawProducts, setRawProducts] = useState<Product[]>([])
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [selectedCpus, setSelectedCpus] = useState<string[]>([])
+  const [selectedRams, setSelectedRams] = useState<string[]>([])
+  const [selectedStorages, setSelectedStorages] = useState<string[]>([])
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
+
+  const handleApplyFilters = (filters: AppliedFilters) => {
+    setCategory(filters.category)
+    setInStockOnly(filters.inStockOnly)
+    setMinPrice(filters.minPrice)
+    setMaxPrice(filters.maxPrice)
+    setSelectedBrands(filters.brands)
+    setSelectedCpus(filters.cpus)
+    setSelectedRams(filters.rams)
+    setSelectedStorages(filters.storages)
+    setPage(1)
+    setMobileFilterOpen(false)
+  }
+
+  const handleRemoveBrand = (brand: string) => {
+    setSelectedBrands((prev) => prev.filter((b) => b !== brand))
+    setPage(1)
+  }
+
+  const handleRemoveCpu = (cpu: string) => {
+    setSelectedCpus((prev) => prev.filter((c) => c !== cpu))
+    setPage(1)
+  }
+
+  const handleRemoveRam = (ram: string) => {
+    setSelectedRams((prev) => prev.filter((r) => r !== ram))
+    setPage(1)
+  }
+
+  const handleRemoveStorage = (storage: string) => {
+    setSelectedStorages((prev) => prev.filter((s) => s !== storage))
+    setPage(1)
+  }
 
   const loadProducts = useCallback(async () => {
     setLoading(true)
@@ -60,11 +106,18 @@ export default function HomePage() {
     try {
       const response = await fetchProducts({
         page: 1,
-        limit: 100,
-        inStockOnly: inStockOnly || undefined
+        limit: 100
       })
 
-      let items = response.items || []
+      const rawItems = response.items || []
+      setRawProducts(rawItems)
+
+      let items = [...rawItems]
+
+      // Availability filter
+      if (inStockOnly) {
+        items = items.filter((p) => p.stockQuantity > 0)
+      }
 
       // Category filter
       if (category) {
@@ -82,6 +135,35 @@ export default function HomePage() {
             p.description?.toLowerCase().includes(q) ||
             p.sku?.toLowerCase().includes(q)
         )
+      }
+
+      // Brand filter
+      if (selectedBrands.length > 0) {
+        items = items.filter((p) => selectedBrands.includes(extractProductBrand(p)))
+      }
+
+      // CPU filter
+      if (selectedCpus.length > 0) {
+        items = items.filter((p) => {
+          const cpu = extractProductCpu(p)
+          return cpu ? selectedCpus.includes(cpu) : false
+        })
+      }
+
+      // RAM filter
+      if (selectedRams.length > 0) {
+        items = items.filter((p) => {
+          const ram = extractProductRam(p)
+          return ram ? selectedRams.includes(ram) : false
+        })
+      }
+
+      // Storage filter
+      if (selectedStorages.length > 0) {
+        items = items.filter((p) => {
+          const storage = extractProductStorage(p)
+          return storage ? selectedStorages.includes(storage) : false
+        })
       }
 
       // Price filters
@@ -105,8 +187,8 @@ export default function HomePage() {
         )
       } else if (sortBy === 'brand') {
         items.sort((a, b) => {
-          const brandA = a.name.split(' ')[0] || ''
-          const brandB = b.name.split(' ')[0] || ''
+          const brandA = extractProductBrand(a)
+          const brandB = extractProductBrand(b)
           return sortOrder === 'ASC'
             ? brandA.localeCompare(brandB)
             : brandB.localeCompare(brandA)
@@ -141,7 +223,19 @@ export default function HomePage() {
     } finally {
       setLoading(false)
     }
-  }, [page, search, category, inStockOnly, minPrice, maxPrice, sortKey])
+  }, [
+    page,
+    search,
+    category,
+    inStockOnly,
+    selectedBrands,
+    selectedCpus,
+    selectedRams,
+    selectedStorages,
+    minPrice,
+    maxPrice,
+    sortKey
+  ])
 
   useEffect(() => {
     loadProducts()
@@ -154,17 +248,10 @@ export default function HomePage() {
 
   const handleCategoryChange = (newCat: string) => {
     setCategory(newCat)
-    setPage(1)
-  }
-
-  const handleInStockChange = (checked: boolean) => {
-    setInStockOnly(checked)
-    setPage(1)
-  }
-
-  const handlePriceChange = (min: string, max: string) => {
-    setMinPrice(min)
-    setMaxPrice(max)
+    setSelectedBrands([])
+    setSelectedCpus([])
+    setSelectedRams([])
+    setSelectedStorages([])
     setPage(1)
   }
 
@@ -174,12 +261,24 @@ export default function HomePage() {
     setInStockOnly(false)
     setMinPrice('')
     setMaxPrice('')
+    setSelectedBrands([])
+    setSelectedCpus([])
+    setSelectedRams([])
+    setSelectedStorages([])
     setSortKey('createdAt_DESC')
     setPage(1)
   }
 
   const hasActiveFilters = Boolean(
-    search || category || inStockOnly || minPrice || maxPrice
+    search ||
+      category ||
+      inStockOnly ||
+      minPrice ||
+      maxPrice ||
+      selectedBrands.length > 0 ||
+      selectedCpus.length > 0 ||
+      selectedRams.length > 0 ||
+      selectedStorages.length > 0
   )
 
   // 6 Visual Category Quick Cards
@@ -412,18 +511,21 @@ export default function HomePage() {
       {/* 3. Main Storefront: Left Sticky Sidebar + Right Product Grid */}
       <div id="catalog-section" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2">
         {/* Desktop Left Sidebar (3 cols) */}
-        <div className="hidden lg:block lg:col-span-3 sticky top-28">
+        <div className="hidden lg:block lg:col-span-3">
           <SidebarFilters
-            categories={[]}
-            selectedCategory={category}
-            onSelectCategory={handleCategoryChange}
-            inStockOnly={inStockOnly}
-            onInStockChange={handleInStockChange}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            onPriceChange={handlePriceChange}
+            allProducts={rawProducts}
+            appliedFilters={{
+              category,
+              inStockOnly,
+              minPrice,
+              maxPrice,
+              brands: selectedBrands,
+              cpus: selectedCpus,
+              rams: selectedRams,
+              storages: selectedStorages
+            }}
+            onApply={handleApplyFilters}
             onReset={handleResetFilters}
-            hasActiveFilters={hasActiveFilters}
           />
         </div>
 
@@ -434,8 +536,8 @@ export default function HomePage() {
               onClick={() => setMobileFilterOpen(false)}
               className="fixed inset-0 bg-black/50 backdrop-blur-xs"
             />
-            <div className="relative ml-auto w-full max-w-xs bg-white p-6 shadow-2xl overflow-y-auto h-full space-y-6">
-              <div className="flex items-center justify-between border-b pb-4">
+            <div className="relative ml-auto w-full max-w-xs bg-white p-4 shadow-2xl overflow-hidden h-full flex flex-col">
+              <div className="flex items-center justify-between border-b pb-3 mb-2">
                 <span className="font-bold text-slate-900">
                   {locale === 'ua' ? 'Фільтри товарів' : 'Filters'}
                 </span>
@@ -446,27 +548,24 @@ export default function HomePage() {
                   ✕
                 </button>
               </div>
-              <SidebarFilters
-                categories={[]}
-                selectedCategory={category}
-                onSelectCategory={(cat) => {
-                  handleCategoryChange(cat)
-                  setMobileFilterOpen(false)
-                }}
-                inStockOnly={inStockOnly}
-                onInStockChange={handleInStockChange}
-                minPrice={minPrice}
-                maxPrice={maxPrice}
-                onPriceChange={(min, max) => {
-                  handlePriceChange(min, max)
-                  setMobileFilterOpen(false)
-                }}
-                onReset={() => {
-                  handleResetFilters()
-                  setMobileFilterOpen(false)
-                }}
-                hasActiveFilters={hasActiveFilters}
-              />
+              <div className="flex-1 overflow-hidden">
+                <SidebarFilters
+                  allProducts={rawProducts}
+                  appliedFilters={{
+                    category,
+                    inStockOnly,
+                    minPrice,
+                    maxPrice,
+                    brands: selectedBrands,
+                    cpus: selectedCpus,
+                    rams: selectedRams,
+                    storages: selectedStorages
+                  }}
+                  onApply={handleApplyFilters}
+                  onReset={handleResetFilters}
+                  onCloseMobile={() => setMobileFilterOpen(false)}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -504,6 +603,30 @@ export default function HomePage() {
                   <button onClick={() => setInStockOnly(false)} className="hover:text-emerald-900 cursor-pointer">✕</button>
                 </span>
               )}
+              {selectedBrands.map((brand) => (
+                <span key={brand} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                  <span>{brand}</span>
+                  <button onClick={() => handleRemoveBrand(brand)} className="hover:text-blue-900 cursor-pointer">✕</button>
+                </span>
+              ))}
+              {selectedCpus.map((cpu) => (
+                <span key={cpu} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  <span>{cpu}</span>
+                  <button onClick={() => handleRemoveCpu(cpu)} className="hover:text-indigo-900 cursor-pointer">✕</button>
+                </span>
+              ))}
+              {selectedRams.map((ram) => (
+                <span key={ram} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                  <span>RAM: {ram}</span>
+                  <button onClick={() => handleRemoveRam(ram)} className="hover:text-blue-900 cursor-pointer">✕</button>
+                </span>
+              ))}
+              {selectedStorages.map((storage) => (
+                <span key={storage} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span>{storage}</span>
+                  <button onClick={() => handleRemoveStorage(storage)} className="hover:text-emerald-900 cursor-pointer">✕</button>
+                </span>
+              ))}
               {(minPrice || maxPrice) && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                   <span>

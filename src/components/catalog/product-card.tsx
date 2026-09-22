@@ -89,7 +89,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Action icons: Compare & Wishlist */}
-        <div className="flex items-center gap-1.5 ml-auto">
+        <div className="flex items-center gap-1 ml-auto">
           {/* Compare Button */}
           <button
             onClick={handleToggleCompare}
@@ -100,10 +100,10 @@ export function ProductCard({ product }: ProductCardProps) {
                 ? (locale === 'ua' ? 'Видалити з порівняння' : 'Remove from compare')
                 : (locale === 'ua' ? 'Додати до порівняння' : 'Add to compare')
             }
-            className={`flex h-7 w-7 items-center justify-center rounded-full border transition-all cursor-pointer ${
+            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all cursor-pointer ${
               isCompared
-                ? 'bg-blue-50 border-blue-200 text-blue-600 scale-105 shadow-xs'
-                : 'bg-slate-50 hover:bg-blue-50 text-slate-400 hover:text-blue-600 border-slate-100'
+                ? 'bg-blue-50 text-blue-600'
+                : 'text-slate-400 hover:text-blue-600 hover:bg-slate-100'
             }`}
           >
             <Scale className="h-3.5 w-3.5" />
@@ -119,10 +119,10 @@ export function ProductCard({ product }: ProductCardProps) {
                 ? (locale === 'ua' ? 'Видалити з бажаного' : 'Remove from wishlist')
                 : (locale === 'ua' ? 'Додати до бажаного' : 'Add to wishlist')
             }
-            className={`flex h-7 w-7 items-center justify-center rounded-full border transition-all cursor-pointer ${
+            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all cursor-pointer ${
               isFavorite
-                ? 'bg-rose-50 border-rose-200 text-rose-500 scale-105 shadow-xs'
-                : 'bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 border-slate-100'
+                ? 'bg-rose-50 text-rose-500'
+                : 'text-slate-400 hover:text-rose-500 hover:bg-slate-100'
             }`}
           >
             <Heart
